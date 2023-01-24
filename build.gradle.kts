@@ -1,4 +1,3 @@
-import groovy.lang.Closure
 import net.minecraftforge.gradle.userdev.UserDevExtension
 import java.nio.charset.StandardCharsets
 import java.time.Instant
@@ -44,9 +43,10 @@ base.archivesName.set(modId)
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(javaVersion))
 
 
-logger.show(
-    "Java: ${System.getProperty("java.version")}, JVM: ${System.getProperty("java.vm.version")} (${System.getProperty("java.vendor")}), Arch: ${System.getProperty("os.arch")}"
-)
+logger.show("Java: ${System.getProperty("java.version")}")
+logger.show("JVM: ${System.getProperty("java.vm.version")} (${System.getProperty("java.vendor")})}")
+logger.show("Arch: \${System.getProperty(\"os.arch\")")
+
 configure<UserDevExtension> {
     // The mappings can be changed at any time and must be in the following format.
     // Channel:   Version:
@@ -291,8 +291,7 @@ if (System.getProperty("os.arch").equals("aarch64") && System.getProperty("os.na
     }
 }
 
-fun Project.getProperty(name: String) =
-    this.findProperty(name)?.toString()
-        ?: throw IllegalArgumentException("Property $name not found in gradle.properties file")
+fun Project.getProperty(name: String) = this.findProperty(name)?.toString()
+    ?: throw IllegalArgumentException("Property $name not found in gradle.properties file")
 
 fun Logger.show(message: String) = this.warn("\u001B[32m$message\u001B[0m")
