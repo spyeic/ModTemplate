@@ -1,3 +1,4 @@
+import net.minecraftforge.gradle.userdev.DependencyManagementExtension
 import net.minecraftforge.gradle.userdev.UserDevExtension
 import java.nio.charset.StandardCharsets
 import java.time.Instant
@@ -47,7 +48,7 @@ logger.show("Java: ${System.getProperty("java.version")}")
 logger.show("JVM: ${System.getProperty("java.vm.version")} (${System.getProperty("java.vendor")})}")
 logger.show("Arch: \${System.getProperty(\"os.arch\")")
 
-configure<UserDevExtension> {
+minecraft {
     // The mappings can be changed at any time and must be in the following format.
     // Channel:   Version:
     // official   MCVersion             Official field/method names from Mojang mapping files
@@ -61,9 +62,8 @@ configure<UserDevExtension> {
     //
     // Use non-default mappings at your own risk. They may not always work.
     // Simply re-run your setup task after changing the mappings to update your workspace.
-    mappings(mapOf("channel" to "official", "version" to mcVersion))
-
-    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
+    mappings("official", mcVersion)
+    accessTransformer(file("src/main/resources/META-INF/accesstransformer.cfg")) // Currently, this location cannot be changed from the default.
 
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
@@ -183,7 +183,7 @@ repositories {
 
     // If you have mod jar dependencies in ./libs, you can declare them as a repository like so:
     // flatDir {
-    //     dir 'libs'
+    //    dir("libs")
     // }
 }
 
@@ -191,14 +191,13 @@ dependencies {
     // Specify the version of Minecraft to use. If this is any group other than 'net.minecraft', it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency, and its patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    "minecraft"("net.minecraftforge:forge:${mcVersion}-${forgeVersion}")
+    minecraft("net.minecraftforge:forge:${mcVersion}-${forgeVersion}")
     // Real mod deobf dependency examples - these get remapped to your current mappings
-    // compileOnly(fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api")) // Adds JEI API as a compile dependency
-    // runtimeOnly(fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}")) // Adds the full JEI mod as a runtime dependency
-    // implementation(fg.deobf("com.tterrag.registrate:Registrate:MC${mc_version}-${registrate_version}")) // Adds registrate as a dependency
-
+    // compileOnly(fg.deobf("mezz.jei:jei-${mcVersion}:${jeiVersion}:api")) // Adds JEI API as a compile dependency
+    // runtimeOnly(fg.deobf("mezz.jei:jei-${mcVersion}:${jeiVersion}")) // Adds the full JEI mod as a runtime dependency
+    // implementation(fg.deobf("com.tterrag.registrate:Registrate:MC${mcVersion}-1.1.6")) // Adds registrate as a dependency
     // Examples using mod jars from ./libs
-    // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
+    // implementation(fg.deobf("blank:coolmod-${mcVersion}:${coolmodVersion}"))
 
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
@@ -259,10 +258,11 @@ tasks.test {
 if (System.getProperty("os.arch").equals("aarch64") && System.getProperty("os.name").equals("Mac OS X")) {
     logger.show("Apple Silicon detected, applying Apple Silicon patches")
     val lwjglVersion = if (mcVersion.contains("1.19")) {
-        "3.3.1".also { ext.set("lwjglVersion", it) }
+        "3.3.1"
     } else {
-        "3.3.0".also { ext.set("lwjglVersion", it) }
+        "3.3.0"
     }
+    ext.set("lwjglVersion", lwjglVersion)
     ext.set("lwjglNatives", "natives-macos-arm64")
     configurations.configureEach {
         resolutionStrategy {
@@ -290,6 +290,12 @@ if (System.getProperty("os.arch").equals("aarch64") && System.getProperty("os.na
         writer.close()
     }
 }
+
+val fg = extensions.getByType<DependencyManagementExtension>()
+
+fun DependencyHandlerScope.minecraft(dep: String): Dependency? = "minecraft"(dep)
+
+fun Project.minecraft(block: UserDevExtension.() -> Unit) = configure<UserDevExtension> { block() }
 
 fun Project.getProperty(name: String) = this.findProperty(name)?.toString()
     ?: throw IllegalArgumentException("Property $name not found in gradle.properties file")
