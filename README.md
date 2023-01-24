@@ -1,0 +1,3 @@
+# ModTemplate
+
+A mod template.
