@@ -281,11 +281,13 @@ if (System.getProperty("os.arch").equals("aarch64") && System.getProperty("os.na
     val cache = gradle.gradleUserHomeDir.resolve(path)
     if (cache.exists()) {
         val lines = cache.readLines(StandardCharsets.UTF_8)
-        val writer = cache.writer()
+        val writer = cache.bufferedWriter(StandardCharsets.UTF_8)
         lines.forEach { line ->
             if (!line.contains("arm")) {
-                writer.appendLine(line.replace("natives-macos", "natives-macos-arm64"))
-            }
+                line.replace("natives-macos", "natives-macos-arm64")
+            } else {
+                line
+            }.also { writer.appendLine(it) }
         }
         writer.close()
     }
