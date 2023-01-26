@@ -8,10 +8,12 @@ buildscript {
     repositories {
         // These repositories are only for Gradle plugins, put any other repositories in the repository block further below
         maven("https://maven.minecraftforge.net")
+        maven("https://maven.parchmentmc.org")
         mavenCentral()
     }
     dependencies {
         classpath(group = "net.minecraftforge.gradle", name = "ForgeGradle", version = "5.1.+")
+        classpath(group = "org.parchmentmc", name = "librarian", version = "1.+")
     }
 }
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
@@ -20,6 +22,7 @@ plugins {
     id("maven-publish")
 }
 apply(plugin = "net.minecraftforge.gradle")
+apply(plugin = "org.parchmentmc.librarian.forgegradle")
 
 
 val javaVersion = getProperty("java_version")
@@ -27,7 +30,9 @@ val forgeVersion = getProperty("forge_version")
 val forgeVersionRange = getProperty("forge_version_range")
 val mcVersion = getProperty("mc_version")
 val mcVersionRange = getProperty("mc_version_range")
+val parchmentVersion = getProperty("parchment_version")
 
+val modGroupName = getProperty("mod_group_name")
 val modId = getProperty("mod_id")
 val modName = getProperty("mod_name")
 val author = getProperty("mod_author")
@@ -37,7 +42,7 @@ val modDescription = getProperty("mod_description")
 val modLicense = getProperty("mod_license")
 
 version = modVersion
-group = "com.spyeic"
+group = modGroupName
 base.archivesName.set(modId)
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
@@ -62,7 +67,8 @@ minecraft {
     //
     // Use non-default mappings at your own risk. They may not always work.
     // Simply re-run your setup task after changing the mappings to update your workspace.
-    mappings("official", mcVersion)
+    // mappings("official", mcVersion)
+    mappings("parchment", "$parchmentVersion-$mcVersion")
     accessTransformer(file("src/main/resources/META-INF/accesstransformer.cfg")) // Currently, this location cannot be changed from the default.
 
     // Default run configurations.
