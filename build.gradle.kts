@@ -1,5 +1,7 @@
 import net.minecraftforge.gradle.userdev.DependencyManagementExtension
 import net.minecraftforge.gradle.userdev.UserDevExtension
+import net.minecraftforge.gradle.userdev.jarjar.JarJarProjectExtension
+import net.minecraftforge.gradle.userdev.tasks.RenameJarInPlace
 import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.time.format.DateTimeFormatter.ISO_INSTANT
@@ -52,6 +54,12 @@ java.toolchain.languageVersion.set(JavaLanguageVersion.of(javaVersion))
 logger.show("Java: ${System.getProperty("java.version")}")
 logger.show("JVM: ${System.getProperty("java.vm.version")} (${System.getProperty("java.vendor")})}")
 logger.show("Arch: \${System.getProperty(\"os.arch\")")
+
+val fg = extensions.getByName<DependencyManagementExtension>("fg")
+
+val jarJar = extensions.getByName<JarJarProjectExtension>("jarJar")
+
+val reobf = extensions.getByName<NamedDomainObjectContainer<RenameJarInPlace>>("reobf")
 
 minecraft {
     // The mappings can be changed at any time and must be in the following format.
@@ -299,7 +307,6 @@ if (System.getProperty("os.arch").equals("aarch64") && System.getProperty("os.na
     }
 }
 
-val fg = extensions.getByType<DependencyManagementExtension>()
 
 fun DependencyHandlerScope.minecraft(dep: String): Dependency? = "minecraft"(dep)
 
