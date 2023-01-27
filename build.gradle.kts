@@ -55,11 +55,6 @@ logger.show("Java: ${System.getProperty("java.version")}")
 logger.show("JVM: ${System.getProperty("java.vm.version")} (${System.getProperty("java.vendor")})}")
 logger.show("Arch: \${System.getProperty(\"os.arch\")")
 
-val fg = extensions.getByName<DependencyManagementExtension>("fg")
-
-val jarJar = extensions.getByName<JarJarProjectExtension>("jarJar")
-
-val reobf = extensions.getByName<NamedDomainObjectContainer<RenameJarInPlace>>("reobf")
 
 minecraft {
     // The mappings can be changed at any time and must be in the following format.
@@ -307,10 +302,21 @@ if (System.getProperty("os.arch").equals("aarch64") && System.getProperty("os.na
     }
 }
 
+val Project.minecraft
+    get() = extensions.getByType<UserDevExtension>()
+
+val Project.fg
+    get() = extensions.getByType<DependencyManagementExtension>()
+
+val Project.jarJar
+    get() = extensions.getByType<JarJarProjectExtension>()
+
+val Project.reobf
+    get() = extensions.getByType<NamedDomainObjectContainer<RenameJarInPlace>>()
 
 fun DependencyHandlerScope.minecraft(dep: String): Dependency? = "minecraft"(dep)
 
-fun Project.minecraft(block: UserDevExtension.() -> Unit) = configure<UserDevExtension> { block() }
+fun Project.minecraft(block: UserDevExtension.() -> Unit) = minecraft.block()
 
 fun Project.getProperty(name: String) = this.findProperty(name)?.toString()
     ?: throw IllegalArgumentException("Property $name not found in gradle.properties file")
